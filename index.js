@@ -181,12 +181,12 @@ const remove = async (deleted) => {
 
 
 try {
-    let updates = core.getInput('updates')
+    let updates = JSON.parse(core.getInput('updates'))
     console.log('UPDATES', updates)
     Promise.all([
         create(updates.created),
         remove(updates.deleted),
-        update(updaetes.updated)
+        update(updates.updated)
     ])
 } catch (err) {
     core.setFailed(err)
