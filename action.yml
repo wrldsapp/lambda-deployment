@@ -1,0 +1,12 @@
+name: 'Lambda Deployment'
+description: 'Auto-deploys function changes to AWS Lambda'
+inputs:
+  updates:
+    desription: 'The updates object from the previous step'
+    required: true
+outputs: 
+  functions:
+    description: 'A JSON object containing deleted/created functions to be deployed to API Gateway.'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
