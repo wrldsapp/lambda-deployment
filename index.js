@@ -5,6 +5,7 @@ var iam = new AWS.IAM({ apiVersion: "2010-05-08" });
 const core = require('@actions/core')
 const archiver = require("archiver");
 const promiseRetry = require("promise-retry");
+const fs = require('fs');
 
 let retryOptions = {
   retries: 4,
