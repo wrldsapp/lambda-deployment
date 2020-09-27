@@ -115,7 +115,7 @@ const create = async (created) => {
       promiseRetry({
         retries: 4,
         factor: 2,
-        minTimeout: 50000,
+        minTimeout: 5000,
         maxTimeout: 10000
       }, 
       function (retry, number) {
