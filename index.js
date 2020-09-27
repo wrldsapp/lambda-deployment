@@ -64,9 +64,10 @@ async function zipPackage(name) {
 
 async function createExecutionRole(name) {
   return new Promise(async function(resolve, reject) {
-    let roleArn = await createRole(name);
+    let arn = await createRole(name);
     await attachPolicy(name);
-    resolve(roleArn);
+    console.log("ARN INSIDE CER", role);
+    resolve(arn);
   });
 }
 
