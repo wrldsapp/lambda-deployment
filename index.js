@@ -187,7 +187,8 @@ try {
         create(updates.created),
         remove(updates.deleted),
         update(updates.updated)
-    ]).then(async (values) => {
+    ])
+    .then(function(values) {
       console.log("Ending values", values);
     });
 } catch (err) {
