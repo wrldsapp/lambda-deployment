@@ -19,9 +19,9 @@
   "homepage": "https://github.com/wrldsapp/lambda-deployment#readme",
   "dependencies": {
     "@actions/core": "^1.2.6",
+    "ansi-styles": "^4.2.1",
     "archiver": "^5.0.2",
     "aws-sdk": "^2.761.0",
-    "chalk": "^4.1.0",
     "promise-retry": "^2.0.1"
   }
 }
