@@ -66,7 +66,7 @@ async function createExecutionRole(name) {
   return new Promise(async function(resolve, reject) {
     let arn = await createRole(name);
     await attachPolicy(name);
-    console.log("ARN INSIDE CER", role);
+    console.log("ARN INSIDE CER", arn);
     resolve(arn);
   });
 }
