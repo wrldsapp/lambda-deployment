@@ -9,21 +9,41 @@ const fs = require('fs');
 
 
 async function deployFunction(params) {
-  console.log("Publishing new function");
+  let options = {
+    retries: 4,
+    factor: 2,
+    minTimeout: 5000,
+    maxTimeout: 10000
+  };
+  promiseRetry(uploadPackage(params, retry), options)
+  .then(data => {
+    resolve(data);
+  })
+  .catch(err => {
+    reject(err);
+  });
+};
+
+
+
+
+function uploadPackage(params, retry) {
   return new Promise(function (resolve, reject) {
     lambda.createFunction(params, function(err, data) {
       if (err) {
+        if (err.code === "InvalidParameterValueException") {
+          retry(err);
+        }
         reject(err);
       } else {
         resolve(data);
       }
     });
   });
-}
+} 
 
 
 async function zipPackage(name) {
-  console.log("Zipping package.");
   let workspace = process.env.GITHUB_WORKSPACE;
   const source = `${workspace}/REST/${name}`;
   const dest = `${source}/${name}.zip`;
@@ -103,7 +123,7 @@ const create = async (created) => {
       let packagePath = await zipPackage(x);
       let roleArn = await createExecutionRole(x);
       
-      console.log("Hello pre-params.");
+      console.log("Creating ");
       let params = {
         Code: {ZipFile: fs.readFileSync(packagePath)},
         FunctionName: x,
@@ -112,25 +132,10 @@ const create = async (created) => {
         Runtime: "nodejs12.x"
       };
 
-      promiseRetry({
-        retries: 4,
-        factor: 2,
-        minTimeout: 5000,
-        maxTimeout: 10000
-      }, 
-      function (retry, number) {
-        console.log('Promise Retry');
-        return deployFunction(params)
-        .catch((err) => {
-            if (err.code === "InvalidParameterValueException") {
-              retry(err);
-            }
-        })
-        .then((data) => {
-          return {name: data.FunctionName, arn: data.FunctionArn };
-        });
-        });
+      let newFunction = await deployFunction(params);
+      return {name: data.FunctionName, arn: data.FunctionArn };
       });
+      
     console.log("CREATED FUNCTIONS", functions); 
     resolve(functions);
   });
