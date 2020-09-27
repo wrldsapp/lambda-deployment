@@ -185,10 +185,7 @@ try {
         update(updates.updated)
     ])
     .then((values) => {
-      let json = values[0].value[0].map(x => {
-        return JSON.stringify(x);
-      });
-      console.log(json);
+      let json = JSON.stringify(values[0].value);
     });
 } catch (err) {
     core.setFailed(err);
