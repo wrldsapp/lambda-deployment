@@ -6,7 +6,7 @@ const core = require('@actions/core');
 const archiver = require("archiver");
 const promiseRetry = require("promise-retry");
 const fs = require('fs');
-const chalk = require('chalk');
+const style = require('ansi-styles');
 
 
 async function deployFunction(params) {
@@ -130,7 +130,7 @@ const create = async (created) => {
         Runtime: "nodejs12.x"
       };
       let newFunction = await deployFunction(params);
-      console.log(chalk.green(`Successfully deployed Lambda '${newFunction.name}' with arn: ${newFunction.arn}`));
+      console.log(`${style.green.open}Successfully deployed Lambda '${newFunction.name}' with arn: ${newFunction.arn}${style.green.close}`);
       return newFunction;
       });
     resolve(functions);
@@ -183,7 +183,7 @@ const remove = async (deleted) => {
 
 try {
     let updates = JSON.parse(core.getInput('updates'));
-    Promise.all([
+    Promise.allSettled([
         create(updates.created),
         remove(updates.deleted),
         update(updates.updated)
