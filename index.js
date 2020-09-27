@@ -136,7 +136,6 @@ const create = async (created) => {
 
 
 const update = async (updates) => {
-    console.log("Updating Lambdas");
     return new Promise(async function (resolve, reject) {
       for (i in updates) {
         let packagePath = await zipPackage(updates[i]);
@@ -186,8 +185,10 @@ try {
         update(updates.updated)
     ])
     .then((values) => {
-      console.log(values);
-      console.log("CREATE VALUE", values[1]);
+      let json = values[0].value[0].map(x => {
+        return JSON.stringify(x);
+      });
+      console.log(json);
     });
 } catch (err) {
     core.setFailed(err);
