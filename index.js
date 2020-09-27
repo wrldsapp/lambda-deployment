@@ -120,25 +120,22 @@ const create = async (created) => {
   console.log("creating lambdas", created);
   const functions = [];
   return new Promise(async function (resolve) {
-    for (i in created) {
-      let packagePath = await zipPackage(created[i]);
-      let roleArn = await createExecutionRole(created[i]);
+    const functions = created.map(async (x) => {
+      let packagePath = await zipPackage(x);
+      let roleArn = await createExecutionRole(x);
 
       let params = {
-        Code: { ZipFile: fs.readFileSync(packagePath) },
-        FunctionName: created[i],
+        Code: {ZipFile: fs.readFileSync(packagePath)},
+        FunctionName: x,
         Handler: "index.js",
         Role: roleArn,
-        Runtime: "nodejs12.x",
-      };
-
-      console.log('Before uploading function.')
+        Runtime: "nodejs12.x"
+      }
       let data = await deploy(params);
-      let newFunction = { name: data.FunctionName, arn: data.FunctionArn };
-      functions.push(newFunction);
-    }
-    resolve(functions);
-  });
+      return {name: data.FunctionName, arn: data.FunctionArn };
+    })
+    resolve(functions)
+  })
 };
 
 
