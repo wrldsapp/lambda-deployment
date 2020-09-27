@@ -13,8 +13,8 @@ async function deployFunction(params) {
     let options = {
       retries: 4,
       factor: 2,
-      minTimeout: 5000,
-      maxTimeout: 10000
+      minTimeout: 6000,
+      maxTimeout: 15000
     };
     promiseRetry(options, function(retry, number) {
       return uploadPackage(params)
@@ -129,7 +129,7 @@ const create = async (created) => {
         Runtime: "nodejs12.x"
       };
       let newFunction = await deployFunction(params);
-      console.log("NEW FUNCTION", newFunction);
+      console.log(`Successfully deployed Lambda '${newFunction.name}' with arn: ${arn}`);
       return newFunction;
       });
     resolve(functions);
@@ -153,7 +153,7 @@ const update = async (updates) => {
               console.log(`Error updating function: ${updates[i]}`);
             }
             if (data) {
-              console.log('Successfully update function:', data.FunctionName);
+              console.log('Successfully updated function:', data.FunctionName);
             }
         });
       }
@@ -186,7 +186,9 @@ try {
         create(updates.created),
         remove(updates.deleted),
         update(updates.updated)
-    ]);
+    ]).then(values => {
+      console.log("Ending values", values);
+    });
 } catch (err) {
     core.setFailed(err);
 }
