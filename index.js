@@ -116,25 +116,22 @@ const attachPolicy = async (name) => {
 
 
 const create = async (created) => {
-  const functions = [];
-  return new Promise(async function (resolve, reject) {
-    const functions = created.map(async (x) => {
+  return await Promise.all(created.map(async (x) => {
+    return new Promise(async function(resolve, reject) {
       let packagePath = await zipPackage(x);
       let roleArn = await createExecutionRole(x);
-      console.log('ROLE ARN', roleArn);
-      let params = {
-        Code: {ZipFile: fs.readFileSync(packagePath)},
-        FunctionName: x,
-        Handler: "index.js",
-        Role: roleArn,
-        Runtime: "nodejs12.x"
-      };
+        let params = {
+          Code: {ZipFile: fs.readFileSync(packagePath)},
+          FunctionName: x,
+          Handler: "index.js",
+          Role: roleArn,
+          Runtime: "nodejs12.x"
+        };
       let newFunction = await deployFunction(params);
       console.log(`${style.green.open}Successfully deployed Lambda '${newFunction.name}' with arn: ${newFunction.arn}${style.green.close}`);
-      return newFunction;
-      });
-    resolve(functions);
-  });
+      resolve(newFunction);
+    });
+  }));
 };
 
 
