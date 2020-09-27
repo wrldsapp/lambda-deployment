@@ -178,20 +178,19 @@ const remove = async (deleted) => {
 
 
 try {
-    let updates = JSON.parse(core.getInput('updates'));
-    Promise.allSettled([
-        create(updates.created),
-        remove(updates.deleted),
-        update(updates.updated)
-    ])
-    .then((values) => {
-      let output = {
-        created: values[0].value, 
-        deleted: values[1].value
-      };
-      core.setOutput("functions", JSON.stringify(output));
-    });
+  let updates = JSON.parse(core.getInput("updates"));
+  Promise.allSettled([
+    create(updates.created),
+    remove(updates.deleted),
+    update(updates.updated),
+  ]).then((values) => {
+    let output = {
+      created: values[0].value,
+      deleted: values[1].value,
+    };
+    core.setOutput("functions", output);
+  });
 } catch (err) {
-    core.setFailed(err);
+  core.setFailed(err);
 }
   
