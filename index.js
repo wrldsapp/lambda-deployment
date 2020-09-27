@@ -31,7 +31,7 @@ async function deployFunction(params) {
 }
 
 
-function uploadPackage(params, retry) {
+function uploadPackage(params) {
   return new Promise(function (resolve, reject) {
     lambda.createFunction(params, function(err, data) {
       if (err) {
@@ -122,7 +122,7 @@ const create = async (created) => {
     const functions = created.map(async (x) => {
       let packagePath = await zipPackage(x);
       let roleArn = await createExecutionRole(x);
-      
+      console.log('ROLE ARN', roleArn);
       let params = {
         Code: {ZipFile: fs.readFileSync(packagePath)},
         FunctionName: x,
