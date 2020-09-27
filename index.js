@@ -9,24 +9,26 @@ const fs = require('fs');
 
 
 async function deployFunction(params) {
-  let options = {
-    retries: 4,
-    factor: 2,
-    minTimeout: 5000,
-    maxTimeout: 10000
-  };
-  promiseRetry(options, function(retry, number) {
-    return uploadPackage(params)
-    .catch(err => {
-      if (err.code === "InvalidParameterValueException") {
-        retry(err);
-      }
-      throw err;
+  return new Promise(async function(resolve, reject) {
+    let options = {
+      retries: 4,
+      factor: 2,
+      minTimeout: 5000,
+      maxTimeout: 10000
+    };
+    promiseRetry(options, function(retry, number) {
+      return uploadPackage(params)
+      .catch(err => {
+        if (err.code === "InvalidParameterValueException") {
+          retry(err);
+        }
+        reject(err);
+      });
+    })
+    .then(data => {
+      let newFunction = {name: data.FunctionName, arn: data.FunctionArn};
+      resolve(newFunction);
     });
-  })
-  .then(data => {
-    let newFunction = {name: data.FunctionName, arn: data.FunctionArn};
-    resolve(newFunction);
   });
 }
 
@@ -114,7 +116,7 @@ const attachPolicy = async (name) => {
 
 const create = async (created) => {
   const functions = [];
-  return new Promise(async function (resolve) {
+  return new Promise(async function (resolve, reject) {
     const functions = created.map(async (x) => {
       let packagePath = await zipPackage(x);
       let roleArn = await createExecutionRole(x);
