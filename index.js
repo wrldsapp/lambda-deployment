@@ -43,9 +43,11 @@ async function zipPackage(name) {
 
 async function createExecutionRole(name) {
   return new Promise(async function (resolve, reject) {
-    let arn = await createRole(name);
-    await attachPolicy(name);
-    resolve(arn);
+    createRole(name)
+    .then(arn => {
+      attachPolicy(name)
+      .then(resolve(arn));
+    });
   });
 }
 
@@ -86,7 +88,7 @@ const attachPolicy = async (name) => {
       if (err) {
         console.log(err, err.stack);
       } else {
-        resolve;
+        resolve();
       }
     });
   });
@@ -100,7 +102,7 @@ const create = async (created) => {
     const functions = created.map(async (x) => {
       let packagePath = await zipPackage(x);
       let roleArn = await createExecutionRole(x);
-
+      
       console.log("Hello pre-params.");
       let params = {
         Code: {ZipFile: fs.readFileSync(packagePath)},
@@ -124,7 +126,7 @@ const create = async (created) => {
               retry(err);
             }
         })
-        .then((value) => {
+        .then((data) => {
           return {name: data.FunctionName, arn: data.FunctionArn };
         });
         });
