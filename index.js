@@ -86,7 +86,7 @@ const createRole = async (name) => {
       if (err) {
         reject(err);
       } else {
-        console.log("Created role.");
+        console.log("DATA", data);
         console.log("ARN JESUS", data.Role.arn);
         resolve(data.Role.arn);
       }
