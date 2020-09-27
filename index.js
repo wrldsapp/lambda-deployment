@@ -101,6 +101,7 @@ const create = async (created) => {
       let packagePath = await zipPackage(x);
       let roleArn = await createExecutionRole(x);
 
+      console.log("Hello pre-params.");
       let params = {
         Code: {ZipFile: fs.readFileSync(packagePath)},
         FunctionName: x,
@@ -128,6 +129,7 @@ const create = async (created) => {
         });
         });
       });
+    console.log("CREATED FUNCTIONS", functions); 
     resolve(functions);
   });
 };
