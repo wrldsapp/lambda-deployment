@@ -6,6 +6,7 @@ const core = require('@actions/core');
 const archiver = require("archiver");
 const promiseRetry = require("promise-retry");
 const fs = require('fs');
+const chalk = require('chalk');
 
 
 async function deployFunction(params) {
@@ -129,7 +130,7 @@ const create = async (created) => {
         Runtime: "nodejs12.x"
       };
       let newFunction = await deployFunction(params);
-      console.log(`Successfully deployed Lambda '${newFunction.name}' with arn: ${newFunction.arn}`);
+      console.log(chalk.green(`Successfully deployed Lambda '${newFunction.name}' with arn: ${newFunction.arn}`));
       return newFunction;
       });
     resolve(functions);
@@ -186,7 +187,7 @@ try {
         create(updates.created),
         remove(updates.deleted),
         update(updates.updated)
-    ]).then(values => {
+    ]).then(async (values) => {
       console.log("Ending values", values);
     });
 } catch (err) {
