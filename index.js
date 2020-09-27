@@ -15,25 +15,26 @@ async function deployFunction(params) {
     minTimeout: 5000,
     maxTimeout: 10000
   };
-  promiseRetry(uploadPackage(params, retry), options)
-  .then(data => {
-    resolve(data);
+  promiseRetry(options, function(retry, number) {
+    return uploadPackage(params)
+    .catch(err => {
+      if (err.code === "InvalidParameterValueException") {
+        retry(err);
+      }
+      throw err;
+    });
   })
-  .catch(err => {
-    reject(err);
+  .then(data => {
+    console.log('Function Data', data);
+    resolve(data);
   });
-};
-
-
+}
 
 
 function uploadPackage(params, retry) {
   return new Promise(function (resolve, reject) {
     lambda.createFunction(params, function(err, data) {
       if (err) {
-        if (err.code === "InvalidParameterValueException") {
-          retry(err);
-        }
         reject(err);
       } else {
         resolve(data);
