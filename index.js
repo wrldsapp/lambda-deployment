@@ -25,8 +25,8 @@ async function deployFunction(params) {
     });
   })
   .then(data => {
-    console.log('Function Data', data);
-    resolve(data);
+    let newFunction = {name: data.FunctionName, arn: data.FunctionArn};
+    resolve(newFunction);
   });
 }
 
@@ -48,7 +48,6 @@ async function zipPackage(name) {
   let workspace = process.env.GITHUB_WORKSPACE;
   const source = `${workspace}/REST/${name}`;
   const dest = `${source}/${name}.zip`;
-
   const archive = archiver("zip", { zlib: { level: 9 } });
   const stream = fs.createWriteStream(dest);
 
@@ -61,6 +60,7 @@ async function zipPackage(name) {
     archive.finalize();
   });
 }
+
 
 async function createExecutionRole(name) {
   return new Promise(async function(resolve, reject) {
@@ -126,12 +126,10 @@ const create = async (created) => {
         Role: roleArn,
         Runtime: "nodejs12.x"
       };
-
-      let data = await deployFunction(params);
-      return {name: data.FunctionName, arn: data.FunctionArn };
+      let newFunction = await deployFunction(params);
+      console.log("NEW FUNCTION", newFunction);
+      return newFunction;
       });
-
-    console.log("CREATED FUNCTIONS", functions); 
     resolve(functions);
   });
 };
@@ -182,7 +180,6 @@ const remove = async (deleted) => {
 
 try {
     let updates = JSON.parse(core.getInput('updates'));
-    console.log('UPDATES', updates);
     Promise.all([
         create(updates.created),
         remove(updates.deleted),
