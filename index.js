@@ -188,8 +188,9 @@ try {
         remove(updates.deleted),
         update(updates.updated)
     ])
-    .then(function(values) {
-      console.log("Ending values", values);
+    .then((values) => {
+      console.log(values);
+      console.log("CREATE VALUE", values[1]);
     });
 } catch (err) {
     core.setFailed(err);
