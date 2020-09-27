@@ -185,8 +185,11 @@ try {
         update(updates.updated)
     ])
     .then((values) => {
-      let json = JSON.stringify(values[0].value);
-      console.log(json);
+      let output = {
+        created: values[0].value, 
+        deleted: values[1].value
+      };
+      core.setOutput("functions", JSON.stringify(output));
     });
 } catch (err) {
     core.setFailed(err);
