@@ -116,14 +116,12 @@ const attachPolicy = async (name) => {
 
 
 const create = async (created) => {
-  console.log("creating lambdas", created);
   const functions = [];
   return new Promise(async function (resolve) {
     const functions = created.map(async (x) => {
       let packagePath = await zipPackage(x);
       let roleArn = await createExecutionRole(x);
       
-      console.log("Creating ");
       let params = {
         Code: {ZipFile: fs.readFileSync(packagePath)},
         FunctionName: x,
@@ -132,10 +130,10 @@ const create = async (created) => {
         Runtime: "nodejs12.x"
       };
 
-      let newFunction = await deployFunction(params);
+      let data = await deployFunction(params);
       return {name: data.FunctionName, arn: data.FunctionArn };
       });
-      
+
     console.log("CREATED FUNCTIONS", functions); 
     resolve(functions);
   });
