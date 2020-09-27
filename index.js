@@ -63,10 +63,11 @@ async function zipPackage(name) {
 }
 
 async function createExecutionRole(name) {
-  return Promise.all([
-    createRole(name), 
-    attachPolicy(name)
-  ]);
+  return new Promise(async function(resolve, reject) {
+    let roleArn = await createRole(name);
+    await attachPolicy(name);
+    resolve(roleArn);
+  });
 }
 
 
@@ -118,13 +119,13 @@ const create = async (created) => {
   return new Promise(async function (resolve) {
     const functions = created.map(async (x) => {
       let packagePath = await zipPackage(x);
-      let roleResult = await createExecutionRole(x);
-      console.log('ROLE ARN', roleResult[0]);
+      let roleArn = await createExecutionRole(x);
+      console.log('ROLE ARN', roleArn);
       let params = {
         Code: {ZipFile: fs.readFileSync(packagePath)},
         FunctionName: x,
         Handler: "index.js",
-        Role: roleResult[0],
+        Role: roleArn,
         Runtime: "nodejs12.x"
       };
 
