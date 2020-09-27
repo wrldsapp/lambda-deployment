@@ -64,10 +64,13 @@ async function zipPackage(name) {
 
 async function createExecutionRole(name) {
   return new Promise(async function (resolve, reject) {
-    createRole(name)
-    .then(arn => {
+    Promise.all([
+      createRole(name),
       attachPolicy(name)
-      .then(resolve(arn));
+    ])
+    .then(values => {
+      console.log("PROMISE ALL VALUES", values);
+      resolve(values[0]);
     });
   });
 }
