@@ -12,8 +12,8 @@ async function deployFunction(params) {
   return new Promise(async function(resolve, reject) {
     let options = {
       retries: 4,
-      factor: 2,
-      minTimeout: 6000,
+      factor: 1,
+      minTimeout: 6500,
       maxTimeout: 15000
     };
     promiseRetry(options, function(retry, number) {
@@ -129,7 +129,7 @@ const create = async (created) => {
         Runtime: "nodejs12.x"
       };
       let newFunction = await deployFunction(params);
-      console.log(`Successfully deployed Lambda '${newFunction.name}' with arn: ${arn}`);
+      console.log(`Successfully deployed Lambda '${newFunction.name}' with arn: ${newFunction.arn}`);
       return newFunction;
       });
     resolve(functions);
