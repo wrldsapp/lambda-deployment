@@ -2,49 +2,25 @@
 const AWS = require("aws-sdk");
 const lambda = new AWS.Lambda({ apiVersion: "2015-03-31" });
 var iam = new AWS.IAM({ apiVersion: "2010-05-08" });
-const core = require('@actions/core')
+const core = require('@actions/core');
 const archiver = require("archiver");
 const promiseRetry = require("promise-retry");
 const fs = require('fs');
 
-let retryOptions = {
-  retries: 4,
-  factor: 2,
-  minTimeout: 1000 * 5,
-  maxTimeout: 1000 * 15,
-};
 
-
-async function deploy(params) {
+async function deployFunction(params) {
   console.log("Publishing new function");
   return new Promise(function (resolve, reject) {
-    promiseRetry(uploadLambda(params, retry, number), retryOptions)
-      .then((data) => {
-        resolve(data);
-      })
-      .catch((err) => {
+    lambda.createFunction(params, function(err, data) {
+      if (err) {
         reject(err);
-      });
-  });
-}
-
-
-async function uploadLambda(params, retry, number) {
-  console.log('Upload LAMBDA')
-  return new Promise(function (resolve, reject) {
-    console.log('Upload LAMBDA')
-    lambda.createFunction(params, function (err, data) {
-      if (data) {
-        resolve(data);
       } else {
-        if (err.code === "InvalidParameterValueException") {
-          retry(err);
-        }
-        reject(err);
+        resolve(data);
       }
     });
   });
 }
+
 
 async function zipPackage(name) {
   console.log("Zipping package.");
@@ -116,6 +92,7 @@ const attachPolicy = async (name) => {
   });
 };
 
+
 const create = async (created) => {
   console.log("creating lambdas", created);
   const functions = [];
@@ -130,12 +107,29 @@ const create = async (created) => {
         Handler: "index.js",
         Role: roleArn,
         Runtime: "nodejs12.x"
-      }
-      let data = await deploy(params);
-      return {name: data.FunctionName, arn: data.FunctionArn };
-    })
-    resolve(functions)
-  })
+      };
+
+      promiseRetry({
+        retries: 4,
+        factor: 2,
+        minTimeout: 50000,
+        maxTimeout: 10000
+      }, 
+      function (retry, number) {
+        console.log('Promise Retry');
+        return deployFunction(params)
+        .catch((err) => {
+            if (err.code === "InvalidParameterValueException") {
+              retry(err);
+            }
+        })
+        .then((value) => {
+          return {name: data.FunctionName, arn: data.FunctionArn };
+        });
+        });
+      });
+    resolve(functions);
+  });
 };
 
 
@@ -183,14 +177,14 @@ const remove = async (deleted) => {
 
 
 try {
-    let updates = JSON.parse(core.getInput('updates'))
-    console.log('UPDATES', updates)
+    let updates = JSON.parse(core.getInput('updates'));
+    console.log('UPDATES', updates);
     Promise.all([
         create(updates.created),
         remove(updates.deleted),
         update(updates.updated)
-    ])
+    ]);
 } catch (err) {
-    core.setFailed(err)
+    core.setFailed(err);
 }
   
