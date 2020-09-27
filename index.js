@@ -186,6 +186,7 @@ try {
     ])
     .then((values) => {
       let json = JSON.stringify(values[0].value);
+      console.log(json);
     });
 } catch (err) {
     core.setFailed(err);
