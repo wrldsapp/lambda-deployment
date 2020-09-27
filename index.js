@@ -15,7 +15,7 @@ let retryOptions = {
 };
 
 
-async function publish(params) {
+async function deploy(params) {
   console.log("Publishing new function");
   return new Promise(function (resolve, reject) {
     promiseRetry(uploadLambda(params, retry, number), retryOptions)
@@ -30,7 +30,9 @@ async function publish(params) {
 
 
 async function uploadLambda(params, retry, number) {
+  console.log('Upload LAMBDA')
   return new Promise(function (resolve, reject) {
+    console.log('Upload LAMBDA')
     lambda.createFunction(params, function (err, data) {
       if (data) {
         resolve(data);
@@ -70,6 +72,7 @@ async function createExecutionRole(name) {
     resolve(arn);
   });
 }
+
 
 // Creates the execution role for the Lambda function.
 // Each function must have its own execution role.
@@ -129,7 +132,8 @@ const create = async (created) => {
         Runtime: "nodejs12.x",
       };
 
-      let data = await publish(params);
+      console.log('Before uploading function.')
+      let data = await deploy(params);
       let newFunction = { name: data.FunctionName, arn: data.FunctionArn };
       functions.push(newFunction);
     }
